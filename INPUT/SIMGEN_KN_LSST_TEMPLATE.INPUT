@@ -58,10 +58,17 @@ SIMLIB_FILE: $KN_DIR/LSST+WFST/SIMLIB/baseline_v5.0.1_10yrs_WFSTfootprint.SIMLIB
 # filter transmission curves and calibration info
 KCOR_FILE:    $SNDATA_ROOT/kcor/LSST/baseline_1.9/kcor_LSST.fits
 
+# define minimum time difference for new epoch
+NEWMJD_DIF: 0.001 # 0.001day = 1.4min 
+
 # Effic vs. SNR for detections
 SEARCHEFF_PIPELINE_LOGIC_FILE: $SNDATA_ROOT/models/searcheff/SEARCHEFF_PIPELINE_LOGIC_SINGLE.DAT   # 2 detections at any bands
 SEARCHEFF_PIPELINE_FILE: $SNDATA_ROOT/models/searcheff/SEARCHEFF_PIPELINE_LSST_Heaviside.DAT  # SNR > 5 = detection
-APPLY_SEARCHEFF_OPT:  1
+APPLY_SEARCHEFF_OPT:  0   # No filtering, keep write mask into output
+
+# Apply selection cut
+APPLY_CUTWIN_OPT: 1 # implement selection cuts
+CUTWIN_NEPOCH: 1 +5 # require 1 epoch with SNR>5
 
 # convert SED into binary
 SIMSED_USE_BINARY:  1   # speed up the initialization of SED files
@@ -70,8 +77,9 @@ SIMSED_PATH_BINARY: /fred/oz016/bgao_kn/SNANA/SNDATA_ROOT/models/SIMSED/BINARY
 FORMAT_MASK:  32  # 2=TEXT  32=FITS
 
 # variables to include in one-row per SN text dump
-SIMGEN_DUMPALL:  33
-  CID LIBID GENTYPE  SNTYPE  ZCMB RA DECL PEAKMJD PEAKMJD_SMEAR MJD_TRIGGER MJD_DETECT_FIRST MJD_DETECT_LAST NOBS NEPOCH
+SIMGEN_DUMPALL:  36
+  CID LIBID GENTYPE  SNTYPE  ZCMB RA DECL PEAKMJD PEAKMJD_SMEAR MJD_TRIGGER MJD_DETECT_FIRST MJD_DETECT_LAST 
+  NOBS NEPOCH NOBS_UNDEFINED NOBS_SATURATE NOBS_NOSATURATE
   PEAKMAG_u PEAKMAG_g PEAKMAG_r PEAKMAG_i PEAKMAG_z PEAKMAG_Y
   MWEBV MU SNRMAX SNRMAX2 SNRMAX3
   SNRMAX_u SNRMAX_g SNRMAX_r SNRMAX_r SNRMAX_i SNRMAX_Y

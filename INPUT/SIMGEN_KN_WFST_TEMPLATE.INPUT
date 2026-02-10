@@ -58,10 +58,13 @@ SIMLIB_FILE: /fred/oz016/bgao_kn/LSST+WFST/SIMLIB/WFST_simobs.SIMLIB
 # filter transmission curves and calibration info
 KCOR_FILE:    $SNDATA_ROOT/kcor/WFST/kcor_WFST.fits
 
+# define minimum time difference for new epoch
+NEWMJD_DIF: 0.001 # 0.001day = 1.4min 
+
 # Effic vs. SNR for detections
 SEARCHEFF_PIPELINE_LOGIC_FILE: $SNDATA_ROOT/models/searcheff/SEARCHEFF_PIPELINE_LOGIC_SINGLE.DAT   # 2 detections at any bands
 SEARCHEFF_PIPELINE_FILE: $SNDATA_ROOT/models/searcheff/SEARCHEFF_PIPELINE_WFST_Heaviside.DAT  # SNR > 5 = detection
-APPLY_SEARCHEFF_OPT:  1
+APPLY_SEARCHEFF_OPT:  0   # No filtering, keep write mask into output
 
 # Apply selection cut
 APPLY_CUTWIN_OPT: 1 # implement selection cuts
