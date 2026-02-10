@@ -1,0 +1,14 @@
+{
+  "SAMPLES": "LSST+WFST/results/Astrophysical/bns_population.csv",
+  "SURVEYS": "both",
+  "START": 1,
+  "COUNT": "",
+  "DRY_RUN": false,
+  "BASE_SEED": 123456,
+  "SIMLIB_MAXRANSTART": 15189,
+  "SNID_PREFIX": "ASTRO",
+  "SIM_ROOT": "/fred/oz016/bgao_kn/SNANA/SNDATA_ROOT/SIM",
+  "POPULATION_CSV": "LSST+WFST/results/Astrophysical/bns_population.csv",
+  "RUN_SIM": true,
+  "COMBINE": true
+}

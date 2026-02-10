@@ -1,0 +1,78 @@
+# Created January 2026
+# LSST KN simulation template (1-year survey)
+
+NGEN_SEASON:  1    # 1-year survey defined by PEAKMJD range, z-range and solid angle
+
+# name of version to appear in $SNDATA_ROOT/SIM
+GENVERSION: LSST_KN
+
+# define SED model and rate model
+GENMODEL:  $SNDATA_ROOT/models/SIMSED/SIMSED.KN-BULLA19/SIMSED.BULLA-BNS-M3-3COMP
+DNDZ: POWERLAW  1.0E-7  0.0  # volumetric rate = 1.0E-7/Mpc^3/yr (no z-dependence)
+
+GENFILTERS:   ugrizY  # LSST filters
+
+# define distribution of KN parameters
+# SIMSED_GRIDONLY: KN_INDEX
+
+# define distribution of KN parameters
+SIMSED_PARAM: COSTHETA
+GENPEAK_COSTHETA: 0.7959
+GENRANGE_COSTHETA: 0.0 1.0
+GENSIGMA_COSTHETA: 0.0 0.0
+
+SIMSED_PARAM: MEJDYN
+GENPEAK_MEJDYN: 0.016
+GENRANGE_MEJDYN: 0.001 0.02
+GENSIGMA_MEJDYN: 0 0
+
+SIMSED_PARAM: MEJWIND
+GENPEAK_MEJWIND: 0.024
+GENRANGE_MEJWIND: 0.01 0.13
+GENSIGMA_MEJWIND: 0 0
+
+SIMSED_PARAM: PHI
+GENPEAK_PHI: 45
+GENRANGE_PHI: 15 75
+GENSIGMA_PHI: 0 0
+
+# 1-year MJD range matching the LSST SIMLIB (MJD 61226–61596)
+GENRANGE_PEAKMJD:  61226 61596
+
+# define redshift
+GENRANGE_REDSHIFT: 0.01  0.05
+SOLID_ANGLE:  0.243            # approx solid angle in steradians (from LSST SIMLIB)
+
+# define MW extinction
+OPT_MWEBV: 0
+OPT_MWCOLORLAW:   99
+
+# LC time span (relative to explosion time)
+GENRANGE_TREST:    -30 60  # days
+GENSOURCE: RANDOM
+RANSEED:   123456
+
+# cadence library
+SIMLIB_FILE: $KN_DIR/LSST+WFST/SIMLIB/baseline_v5.0.1_10yrs_WFSTfootprint.SIMLIB
+
+# filter transmission curves and calibration info
+KCOR_FILE:    $SNDATA_ROOT/kcor/LSST/baseline_1.9/kcor_LSST.fits
+
+# Effic vs. SNR for detections
+SEARCHEFF_PIPELINE_LOGIC_FILE: $SNDATA_ROOT/models/searcheff/SEARCHEFF_PIPELINE_LOGIC_SINGLE.DAT   # 2 detections at any bands
+SEARCHEFF_PIPELINE_FILE: $SNDATA_ROOT/models/searcheff/SEARCHEFF_PIPELINE_LSST_Heaviside.DAT  # SNR > 5 = detection
+APPLY_SEARCHEFF_OPT:  1
+
+# convert SED into binary
+SIMSED_USE_BINARY:  1   # speed up the initialization of SED files
+SIMSED_PATH_BINARY: /fred/oz016/bgao_kn/SNANA/SNDATA_ROOT/models/SIMSED/BINARY
+
+FORMAT_MASK:  32  # 2=TEXT  32=FITS
+
+# variables to include in one-row per SN text dump
+SIMGEN_DUMPALL:  33
+  CID LIBID GENTYPE  SNTYPE  ZCMB RA DECL PEAKMJD PEAKMJD_SMEAR MJD_TRIGGER MJD_DETECT_FIRST MJD_DETECT_LAST NOBS NEPOCH
+  PEAKMAG_u PEAKMAG_g PEAKMAG_r PEAKMAG_i PEAKMAG_z PEAKMAG_Y
+  MWEBV MU SNRMAX SNRMAX2 SNRMAX3
+  SNRMAX_u SNRMAX_g SNRMAX_r SNRMAX_r SNRMAX_i SNRMAX_Y
+  CUTMASK  SIM_SEARCHEFF_MASK 

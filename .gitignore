@@ -1,0 +1,5 @@
+logs/
+SIMLIB/
+INPUT/generated/
+
+__pycache__/
