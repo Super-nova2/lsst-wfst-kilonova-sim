@@ -39,10 +39,17 @@ def safe_snid(base: str, idx: Optional[int] = None) -> str:
 
 
 def load_fits_table(path: Path) -> Tuple[fits.Header, fits.ColDefs, Table]:
-    with fits.open(path) as hdul:
-        header0 = hdul[0].header.copy()
-        cols = hdul[1].columns
-        data = Table(hdul[1].data)
+    try:
+        with fits.open(path, memmap=False) as hdul:
+            if len(hdul) < 2:
+                raise OSError("missing table extension HDU[1]")
+            if hdul[1].data is None:
+                raise OSError("missing table data in HDU[1]")
+            header0 = hdul[0].header.copy()
+            cols = hdul[1].columns
+            data = Table(hdul[1].data)
+    except Exception as exc:
+        raise OSError(f"failed to read FITS table: {path} ({exc})") from exc
     return header0, cols, data
 
 
@@ -343,7 +350,18 @@ def combine_survey(sim_root: Path, survey: str, snid_prefix: str, event_id_list:
             continue
 
         # load head
-        h0, hcols, head_tbl = load_fits_table(head_path)
+        try:
+            h0, hcols, head_tbl = load_fits_table(head_path)
+        except OSError as exc:
+            print(f"WARN: invalid HEAD for event {event_id}: {head_path} ({exc})")
+            summary_rows.append({
+                "event_id": str(event_id),
+                "detected": "0",
+                "n_head_rows": "0",
+                "n_obs": "0",
+                "sim_searcheff_mask": "",
+            })
+            continue
         if head_header0 is None:
             head_header0 = h0
         if head_cols is None:
@@ -356,12 +374,17 @@ def combine_survey(sim_root: Path, survey: str, snid_prefix: str, event_id_list:
         phot_tbl = None
         n_phot = 0
         if phot_path.exists():
-            p0, pcols, phot_tbl = load_fits_table(phot_path)
-            if phot_header0 is None:
-                phot_header0 = p0
-            if phot_cols is None:
-                phot_cols = pcols
-            n_phot = len(phot_tbl)
+            try:
+                p0, pcols, phot_tbl = load_fits_table(phot_path)
+                if phot_header0 is None:
+                    phot_header0 = p0
+                if phot_cols is None:
+                    phot_cols = pcols
+                n_phot = len(phot_tbl)
+            except OSError as exc:
+                print(f"WARN: invalid PHOT for event {event_id}: {phot_path} ({exc})")
+                phot_tbl = None
+                n_phot = 0
 
         # summary values
         n_obs = 0

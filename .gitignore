@@ -3,3 +3,5 @@ SIMLIB/
 INPUT/generated/
 
 __pycache__/
+check/
+/script/plot_wfst_kn170817a_detection_check.py
