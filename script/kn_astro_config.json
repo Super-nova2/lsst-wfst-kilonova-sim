@@ -5,7 +5,7 @@
   "COUNT": "",
   "DRY_RUN": false,
   "BASE_SEED": 123456,
-  "SIMLIB_MAXRANSTART": 15189,
+  "SIMLIB_MAXRANSTART": 13334,
   "SNID_PREFIX": "ASTRO",
   "SIM_ROOT": "/fred/oz016/bgao_kn/SNANA/SNDATA_ROOT/SIM",
   "POPULATION_CSV": "LSST+WFST/results/Astrophysical/bns_population.csv",

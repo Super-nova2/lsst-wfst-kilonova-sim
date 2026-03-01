@@ -41,7 +41,7 @@ GENRANGE_PEAKMJD:  61226 61596
 
 # define redshift
 GENRANGE_REDSHIFT: 0.01  0.20
-SOLID_ANGLE:  0.243            # approx solid angle in steradians (from WFST SIMLIB)
+SOLID_ANGLE:  0.213            # approx solid angle in steradians (from WFST SIMLIB)
 
 # define MW extinction
 OPT_MWEBV: 0
@@ -53,7 +53,7 @@ GENSOURCE: RANDOM
 RANSEED:   123456
 
 # cadence library
-SIMLIB_FILE: /fred/oz016/bgao_kn/LSST+WFST/SIMLIB/WFST_simobs.SIMLIB
+SIMLIB_FILE: /fred/oz016/bgao_kn/LSST+WFST/SIMLIB/WFST_simobs_2.SIMLIB
 
 # filter transmission curves and calibration info
 KCOR_FILE:    $SNDATA_ROOT/kcor/WFST/kcor_WFST.fits

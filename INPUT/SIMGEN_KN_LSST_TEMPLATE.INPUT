@@ -41,7 +41,7 @@ GENRANGE_PEAKMJD:  61226 61596
 
 # define redshift
 GENRANGE_REDSHIFT: 0.01  0.05
-SOLID_ANGLE:  0.243            # approx solid angle in steradians (from LSST SIMLIB)
+SOLID_ANGLE:  0.213            # approx solid angle in steradians (from LSST SIMLIB)
 
 # define MW extinction
 OPT_MWEBV: 0
