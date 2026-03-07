@@ -22,6 +22,8 @@ from typing import Dict, List, Optional, Sequence, Tuple
 from astropy.io import fits
 from astropy.table import Table, vstack
 
+from project_paths import default_sim_root, repo_path, resolve_path
+
 
 def parse_event_id(path: Path) -> Optional[int]:
     m = re.search(r"_(\d+)$", path.name)
@@ -506,21 +508,25 @@ def combine_survey(sim_root: Path, survey: str, snid_prefix: str, event_id_list:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Combine per-event SNANA outputs into one HEAD/PHOT per survey")
     parser.add_argument("--survey", default="both", choices=["LSST", "WFST", "both", "lsst", "wfst"])
-    parser.add_argument("--sim-root", default="/fred/oz016/bgao_kn/SNANA/SNDATA_ROOT/SIM")
+    parser.add_argument(
+        "--sim-root",
+        default=None,
+        help="SNANA SIM root (default: KN_SIM_ROOT or $SNDATA_ROOT/SIM)",
+    )
     parser.add_argument("--snid-prefix", default="ASTRO")
     parser.add_argument(
         "--population-csv",
-        default="LSST+WFST/results/Astrophysical/bns_population.csv",
+        default=str(repo_path("data", "samples", "bns_population.csv")),
         help="CSV with first column as event_id for SNID mapping",
     )
     args = parser.parse_args()
 
-    sim_root = Path(args.sim_root)
+    sim_root = resolve_path(args.sim_root) if args.sim_root else default_sim_root()
     do_lsst = args.survey.lower() in ("lsst", "both")
     do_wfst = args.survey.lower() in ("wfst", "both")
 
     event_id_list: Optional[List[str]] = None
-    pop_path = Path(args.population_csv)
+    pop_path = resolve_path(args.population_csv)
     if pop_path.exists():
         with pop_path.open("r", encoding="utf-8") as f:
             reader = csv.reader(f)

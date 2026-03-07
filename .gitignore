@@ -1,7 +1,5 @@
-logs/
-SIMLIB/
-INPUT/generated/
-
+outputs/
 __pycache__/
+*.py[cod]
+.ipynb_checkpoints/
 check/
-/script/plot_wfst_kn170817a_detection_check.py

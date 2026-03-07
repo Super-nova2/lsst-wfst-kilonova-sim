@@ -1,0 +1,14 @@
+{
+  "SAMPLES": "data/samples/bns_population.csv",
+  "SURVEYS": "both",
+  "START": 1,
+  "COUNT": "",
+  "DRY_RUN": false,
+  "BASE_SEED": 123456,
+  "SIMLIB_MAXRANSTART": 13334,
+  "SNID_PREFIX": "ASTRO",
+  "SIM_ROOT": "",
+  "POPULATION_CSV": "data/samples/bns_population.csv",
+  "RUN_SIM": true,
+  "COMBINE": true
+}

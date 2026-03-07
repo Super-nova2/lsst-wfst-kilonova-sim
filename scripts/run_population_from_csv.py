@@ -7,12 +7,15 @@ from __future__ import annotations
 
 import argparse
 import csv
+import os
 import re
-import sys
+import shutil
 from pathlib import Path
 from typing import Dict, List, Tuple
 
 import pandas as pd
+
+from project_paths import default_sim_root, ensure_runtime_env, repo_path, resolve_path
 
 
 def find_column(df: pd.DataFrame, candidates: List[str]) -> str:
@@ -112,7 +115,7 @@ def main() -> int:
     )
     parser.add_argument(
         "--samples",
-        default="LSST+WFST/results/Astrophysical/bns_population.csv",
+        default=str(repo_path("data", "samples", "bns_population.csv")),
         help="CSV file with columns: mej_dyn, mej_wind, cos_theta, redshift",
     )
     parser.add_argument(
@@ -151,12 +154,13 @@ def main() -> int:
         help="Value for SIMLIB_MAXRANSTART to randomize starting LIBID selection",
     )
     args = parser.parse_args()
+    ensure_runtime_env()
 
     if args.simlib_maxranstart < 1:
         print("ERROR: --simlib-maxranstart must be >= 1")
         return 1
 
-    samples_path = Path(args.samples)
+    samples_path = resolve_path(args.samples)
     if not samples_path.exists():
         print(f"ERROR: samples file not found: {samples_path}")
         return 1
@@ -176,13 +180,13 @@ def main() -> int:
         print("ERROR: start index beyond dataset length")
         return 1
 
-    base_dir = Path("LSST+WFST")
-    input_dir = base_dir / "INPUT" / "generated"
-    log_dir = base_dir / "logs" / "astro_pop"
+    repo_root = repo_path()
+    input_dir = repo_root / "outputs" / "generated_inputs"
+    log_dir = repo_root / "outputs" / "logs" / "astro_pop"
     log_dir.mkdir(parents=True, exist_ok=True)
 
-    lsst_template = base_dir / "INPUT" / "SIMGEN_KN_LSST_TEMPLATE.INPUT"
-    wfst_template = base_dir / "INPUT" / "SIMGEN_KN_WFST_TEMPLATE.INPUT"
+    lsst_template = repo_root / "templates" / "snana" / "SIMGEN_KN_LSST_TEMPLATE.INPUT"
+    wfst_template = repo_root / "templates" / "snana" / "SIMGEN_KN_WFST_TEMPLATE.INPUT"
 
     lsst_text = lsst_template.read_text(encoding="utf-8")
     wfst_text = wfst_template.read_text(encoding="utf-8")
@@ -282,11 +286,10 @@ def main() -> int:
 
     # consolidate outputs for easier lookup
     if not args.dry_run:
-        sim_root = Path("/fred/oz016/bgao_kn/SNANA/SNDATA_ROOT/SIM")
-        import shutil
+        sim_root = default_sim_root()
         if do_lsst:
             dst = sim_root / "LSST_KN_ASTRO"
-            dst.mkdir(exist_ok=True)
+            dst.mkdir(parents=True, exist_ok=True)
             for p in sim_root.glob("LSST_KN_ASTRO_*"):
                 target = dst / p.name
                 try:
@@ -298,7 +301,7 @@ def main() -> int:
                     continue
         if do_wfst:
             dst = sim_root / "WFST_KN_ASTRO"
-            dst.mkdir(exist_ok=True)
+            dst.mkdir(parents=True, exist_ok=True)
             for p in sim_root.glob("WFST_KN_ASTRO_*"):
                 target = dst / p.name
                 try:

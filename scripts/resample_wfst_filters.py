@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Resample WFST filter transmission curves to 1 Angstrom resolution for SNANA.
 
@@ -6,14 +6,14 @@ This script reads the fine-resolution WFST filter files, interpolates them,
 and resamples to 1 Angstrom resolution suitable for SNANA kcor.exe.
 """
 
-import numpy as np
-from scipy.interpolate import interp1d
+import argparse
 import os
 from pathlib import Path
 
-# Paths
-INPUT_DIR = Path("/fred/oz016/bgao_kn/SNANA/SNDATA_ROOT/filters/WFST")
-OUTPUT_DIR = INPUT_DIR  # Output to same directory, or change if needed
+import numpy as np
+from scipy.interpolate import interp1d
+
+from project_paths import repo_path, resolve_path
 
 # Filter files to process
 FILTER_FILES = [
@@ -27,6 +27,13 @@ FILTER_FILES = [
 
 # Target resolution in Angstrom
 TARGET_RESOLUTION = 1.0
+
+
+def default_input_dir() -> Path:
+    if "SNDATA_ROOT" in os.environ:
+        sndata_root = Path(os.path.expandvars(os.path.expanduser(os.environ["SNDATA_ROOT"])))
+        return sndata_root / "filters" / "WFST"
+    return repo_path("data", "filters", "wfst")
 
 
 def read_filter(filepath):
@@ -90,21 +97,40 @@ def write_filter(filepath, wavelength, transmission, precision=6):
         transmission: Transmission array
         precision: Decimal precision for transmission values
     """
-    with open(filepath, 'w') as f:
+    with open(filepath, 'w', encoding='utf-8') as f:
         for wl, trans in zip(wavelength, transmission):
             f.write(f"{wl:.1f} {trans:.{precision}f}\n")
 
 
 def main():
+    parser = argparse.ArgumentParser(
+        description="Resample WFST filter transmission curves to 1 Angstrom resolution."
+    )
+    parser.add_argument(
+        "--input-dir",
+        default=str(default_input_dir()),
+        help="Directory containing the fine-resolution WFST filter files.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        default=None,
+        help="Directory for the resampled filters (default: same as --input-dir).",
+    )
+    args = parser.parse_args()
+
+    input_dir = resolve_path(args.input_dir)
+    output_dir = resolve_path(args.output_dir) if args.output_dir else input_dir
+    output_dir.mkdir(parents=True, exist_ok=True)
+
     print("=" * 60)
     print("WFST Filter Transmission Resampling")
-    print(f"Input directory:  {INPUT_DIR}")
-    print(f"Output directory: {OUTPUT_DIR}")
+    print(f"Input directory:  {input_dir}")
+    print(f"Output directory: {output_dir}")
     print(f"Target resolution: {TARGET_RESOLUTION} Angstrom")
     print("=" * 60)
     
     for filter_file in FILTER_FILES:
-        input_path = INPUT_DIR / filter_file
+        input_path = input_dir / filter_file
         
         if not input_path.exists():
             print(f"[SKIP] {filter_file} not found")
@@ -127,9 +153,8 @@ def main():
               f"Δλ = {TARGET_RESOLUTION} Å")
         
         # Output filename: replace _fine with _1A
-        # output_file = filter_file.removeplace("_fine", "")
         output_file = filter_file.replace("_fine", "")
-        output_path = OUTPUT_DIR / output_file
+        output_path = output_dir / output_file
         
         # Write output
         write_filter(output_path, wl_new, trans_new)

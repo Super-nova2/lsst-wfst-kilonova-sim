@@ -53,7 +53,7 @@ GENSOURCE: RANDOM
 RANSEED:   123456
 
 # cadence library
-SIMLIB_FILE: /fred/oz016/bgao_kn/LSST+WFST/SIMLIB/WFST_simobs_2.SIMLIB
+SIMLIB_FILE: $KN_SIMLIB_DIR/WFST_simobs_2.SIMLIB
 
 # filter transmission curves and calibration info
 KCOR_FILE:    $SNDATA_ROOT/kcor/WFST/kcor_WFST.fits
@@ -72,7 +72,7 @@ CUTWIN_NEPOCH: 1 +5 # require 1 epoch with SNR>5
 
 # convert SED into binary
 SIMSED_USE_BINARY:  1   # speed up the initialization of SED files
-SIMSED_PATH_BINARY: /fred/oz016/bgao_kn/SNANA/SNDATA_ROOT/models/SIMSED/BINARY
+SIMSED_PATH_BINARY: $SNDATA_ROOT/models/SIMSED/BINARY
 
 FORMAT_MASK:  32  # 2=TEXT  32=FITS
 

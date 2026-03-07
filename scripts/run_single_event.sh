@@ -1,24 +1,43 @@
 #!/bin/bash
-# Run WFST and LSST KN simulations with parameters from a JSON config file.
-# Usage: bash LSST_WFST_KN.sh [config.json]
-#
-# The JSON config overrides parameters in the INPUT files via snlc_sim.exe
-# command-line arguments. Parameters not in the JSON use INPUT file defaults.
+# Run the 170817A-style WFST and LSST KN simulations from a JSON config file.
+# Usage: bash scripts/run_single_event.sh [config.json]
+
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BASE_DIR="$(dirname "$SCRIPT_DIR")"
-CONFIG="${1:-${SCRIPT_DIR}/sim_config.json}"
+REPO_ROOT="$(dirname "$SCRIPT_DIR")"
+CONFIG="${1:-${REPO_ROOT}/configs/single_event/kn_170817A.json}"
 
 if [ ! -f "$CONFIG" ]; then
     echo "ERROR: config file not found: $CONFIG"
     exit 1
 fi
 
+if [ -z "${KN_SIMLIB_DIR:-}" ]; then
+    KN_SIMLIB_DIR="${REPO_ROOT}/outputs/simlib"
+fi
+export KN_SIMLIB_DIR
+
+if [ -z "${KN_SIM_ROOT:-}" ] && [ -n "${SNDATA_ROOT:-}" ]; then
+    KN_SIM_ROOT="${SNDATA_ROOT}/SIM"
+fi
+if [ -n "${KN_SIM_ROOT:-}" ]; then
+    export KN_SIM_ROOT
+fi
+
 echo "Using config: $CONFIG"
 
 # Parse JSON values using python (available on all systems with SNANA)
 read_json() {
-    python3 -c "import json,sys; d=json.load(open('$CONFIG')); print(d.get('$1',''))"
+    python3 - "$CONFIG" "$1" <<'PY'
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as handle:
+    config = json.load(handle)
+
+print(config.get(sys.argv[2], ""))
+PY
 }
 
 GENVERSION_WFST=$(read_json GENVERSION_WFST)
@@ -46,8 +65,8 @@ build_overrides() {
     echo "$overrides"
 }
 
-WFST_INPUT="${BASE_DIR}/INPUT/SIMGEN_KN_WFST_TEMPLATE.INPUT"
-LSST_INPUT="${BASE_DIR}/INPUT/SIMGEN_KN_LSST_TEMPLATE.INPUT"
+WFST_INPUT="${REPO_ROOT}/templates/snana/SIMGEN_KN_WFST_TEMPLATE.INPUT"
+LSST_INPUT="${REPO_ROOT}/templates/snana/SIMGEN_KN_LSST_TEMPLATE.INPUT"
 
 echo "============================================"
 echo "  Running WFST KN simulation"
