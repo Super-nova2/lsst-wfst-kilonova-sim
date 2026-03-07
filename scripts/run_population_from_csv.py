@@ -10,12 +10,50 @@ import csv
 import os
 import re
 import shutil
+import sys
 from pathlib import Path
 from typing import Dict, List, Tuple
 
 import pandas as pd
 
 from project_paths import default_sim_root, ensure_runtime_env, repo_path, resolve_path
+
+
+class ProgressBar:
+    """Lightweight progress bar without external dependencies."""
+
+    def __init__(self, total: int, label: str, width: int = 30) -> None:
+        self.total = max(total, 1)
+        self.label = label
+        self.width = width
+        self.stream = sys.stderr
+        self.is_tty = self.stream.isatty()
+        self.last_bucket = -1
+        self.last_current = 0
+
+    def _render(self, current: int, event_id: int) -> str:
+        ratio = min(max(current / self.total, 0.0), 1.0)
+        filled = int(self.width * ratio)
+        bar = "#" * filled + "-" * (self.width - filled)
+        return f"{self.label} [{bar}] {current}/{self.total} ({ratio:6.1%}) event={event_id}"
+
+    def update(self, current: int, event_id: int) -> None:
+        self.last_current = current
+        line = self._render(current, event_id)
+        if self.is_tty:
+            print(f"\r{line}", end="", file=self.stream, flush=True)
+            return
+
+        bucket = int((current / self.total) * 20)
+        if current in (1, self.total) or bucket > self.last_bucket:
+            self.last_bucket = bucket
+            print(line, file=self.stream, flush=True)
+
+    def finish(self, event_id: int) -> None:
+        if self.last_current < self.total:
+            self.update(self.total, event_id)
+        if self.is_tty:
+            print(file=self.stream, flush=True)
 
 
 def find_column(df: pd.DataFrame, candidates: List[str]) -> str:
@@ -196,6 +234,10 @@ def main() -> int:
 
     do_lsst = args.surveys.lower() in ("lsst", "both")
     do_wfst = args.surveys.lower() in ("wfst", "both")
+    event_total = end_idx - start_idx
+    survey_label = args.surveys.upper() if args.surveys.lower() != "both" else "LSST+WFST"
+    mode_label = "dry-run" if args.dry_run else "run"
+    progress = ProgressBar(event_total, f"{survey_label} {mode_label}")
 
     for idx in range(start_idx, end_idx):
         event_id = idx + 1
@@ -270,6 +312,10 @@ def main() -> int:
                 rc = run_snlc_sim(input_path, log_path)
                 if rc != 0:
                     failed_rows.append(f"WFST,{event_id}")
+
+        progress.update(idx - start_idx + 1, event_id)
+
+    progress.finish(end_idx)
 
     # write clipped params log
     if clipped_rows:
