@@ -1,4 +1,4 @@
-# LSST+WFST
+# LSST-WFST Kilonova Detectability with SNANA
 
 Portable workflows for comparing kilonova detectability in LSST and WFST with SNANA.
 
