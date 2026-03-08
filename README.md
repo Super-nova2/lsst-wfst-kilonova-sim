@@ -6,7 +6,7 @@ This repository contains:
 
 - SNANA input templates for matched LSST/WFST simulations
 - shell and Python entrypoints for a single-event example and an astrophysical population run
-- small tracked reference data and example figures
+- tracked sample inputs and example figures
 - notebooks for population generation, SIMLIB construction, and result inspection
 
 Large runtime artifacts such as `SIMLIB` files, generated SNANA inputs, and logs are intentionally kept under `outputs/` and ignored by Git so the repository stays lightweight for GitHub.
@@ -15,7 +15,7 @@ Large runtime artifacts such as `SIMLIB` files, generated SNANA inputs, and logs
 
 ```text
 configs/          Workflow configuration files
-data/             Tracked small inputs (sample population, SIMOBS CSVs, filters)
+data/             Tracked sample inputs; private WFST data can be placed locally here
 examples/         Example figures kept in version control
 notebooks/        Analysis and preparation notebooks
 outputs/          Local runtime artifacts, ignored by Git
@@ -73,7 +73,7 @@ This repository does not track the large SIMLIB products needed for simulation r
 
 `notebooks/gen_SIMLIB.ipynb` documents how the matched WFST and LSST SIMLIBs were built from:
 
-- `data/simobs/WFST_simobs_2.csv`
+- a local private WFST SIMOBS CSV, expected at `data/simobs/WFST_simobs_2.csv`
 - a local Rubin OpSim SQLite database, optionally provided via `LSST_OPSIM_DB`
 
 ## Notebooks
@@ -86,7 +86,7 @@ The notebooks are kept as working research notebooks, not polished tutorials. So
 
 ## Output Policy
 
-- Track: configs, templates, small CSV inputs, filters, notebooks, example figures
-- Do not track: `outputs/`, SNANA run directories, generated FITS products, local logs, cache files
+- Track: configs, templates, sample CSV inputs, notebooks, example figures
+- Do not track: `outputs/`, SNANA run directories, generated FITS products, local logs, cache files, private WFST observation/filter data under `data/simobs/` and `data/filters/wfst/`
 
 This split is intentional so the repository can be pushed to GitHub without carrying machine-specific runtime artifacts.
